@@ -3,9 +3,13 @@ name: Build
 on:
   push:
     branches: [devel, master]
+    tags:
+      - '*'
   pull_request:
     branches: [devel, master]
   workflow_dispatch:
+  release:
+    types: [published]
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -66,3 +70,29 @@ jobs:
           name: lsp-plugins-windows-ucrt64
           path: INSTALL/
           if-no-files-found: error
+
+  release:
+    name: Publish Release
+    needs: windows_mingw64
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: lsp-plugins-windows-ucrt64
+          path: release/
+
+      - name: Zip release contents
+        run: |
+          cd release
+          zip -r ../lsp-plugins-${{ github.ref_name }}-windows-ucrt64.zip .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          name: ${{ github.ref_name }}
+          files: lsp-plugins-${{ github.ref_name }}-windows-ucrt64.zip
+          generate_release_notes: true
