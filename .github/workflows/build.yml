@@ -40,13 +40,6 @@ jobs:
           [ -f /ucrt64/lib/libpthread.dll.a ] && cp /ucrt64/lib/libwinpthread.a /ucrt64/lib/libpthread.dll.a || true
           echo "--- done ---"
 
-      - name: Cache fetched modules
-        uses: actions/cache@v5
-        with:
-          path: modules/
-          key: lsp-modules-${{ hashFiles('modules.mk') }}
-          restore-keys: lsp-modules-
-
       - name: Configure project
         run: make config STRICT=1 VERBOSE=1 FEATURES='clap ui vst3'
 
