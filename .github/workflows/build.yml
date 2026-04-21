@@ -88,11 +88,11 @@ jobs:
       - name: Zip release contents
         run: |
           cd release
-          zip -r ../lsp-plugins-${{ github.ref_name }}.zip .
+          zip -r ../lsp-plugins-${{ github.ref_name }}-mingw-w64-ucrt-x86_64-x86_64v2.zip .
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
           name: ${{ github.ref_name }}
-          files: lsp-plugins-${{ github.ref_name }}.zip
+          files: lsp-plugins-${{ github.ref_name }}-mingw-w64-ucrt-x86_64-x86_64v2.zip
           generate_release_notes: true
