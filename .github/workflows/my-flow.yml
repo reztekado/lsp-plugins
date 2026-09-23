@@ -1,4 +1,3 @@
-```yaml
 name: Build Windows Release
 
 on:
@@ -77,4 +76,4 @@ jobs:
           path: lsp-plugins-1.2.35-Windows-x86_64.zip
           if-no-files-found: error
           retention-days: 30
-```
+          
