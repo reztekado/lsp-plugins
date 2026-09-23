@@ -1,3 +1,4 @@
+```yaml
 name: Build Windows Release
 
 on:
@@ -8,7 +9,7 @@ permissions:
 
 jobs:
   build-windows:
-    name: Build LSP Plugins 1.2.35 for Windows
+    name: Build LSP Plugins 1.2.35
     runs-on: windows-2022
 
     defaults:
@@ -16,7 +17,7 @@ jobs:
         shell: msys2 {0}
 
     steps:
-      - name: Setup MSYS2 and install dependencies
+      - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
@@ -33,55 +34,47 @@ jobs:
           ref: 1.2.35
           submodules: recursive
 
-      - name: Show source revision
-        shell: msys2 {0}
+      - name: Verify source
         run: |
           echo "Building LSP Plugins 1.2.35"
-          echo
           echo "Commit:"
           git rev-parse HEAD
-          echo
           echo "Tag:"
           git describe --tags --always --exact-match HEAD || true
 
-      - name: Configure project
-        shell: msys2 {0}
+      - name: Configure
         run: |
           make config FEATURES='strict clap ladspa lv2 ui vst2 vst3'
 
-      - name: Fetch project dependencies
-        shell: msys2 {0}
+      - name: Fetch dependencies
         run: |
           make fetch
 
-      - name: Build project
-        shell: msys2 {0}
+      - name: Build
         run: |
           make VERBOSE=1
 
-      - name: Install plugins
-        shell: msys2 {0}
+      - name: Install
         run: |
           make install
 
       - name: Show installed files
-        shell: msys2 {0}
         run: |
-          echo "Installed files:"
           find INSTALL -type f -print
 
-      - name: Create Windows archive
+      - name: Create archive
         shell: pwsh
         run: |
-          if (Test-Path "lsp-plugins-1.2.35-Windows-x86_64.zip") {
-            Remove-Item "lsp-plugins-1.2.35-Windows-x86_64.zip" -Force
-          }
-
           Compress-Archive `
             -Path "INSTALL\*" `
             -DestinationPath "lsp-plugins-1.2.35-Windows-x86_64.zip" `
             -CompressionLevel Optimal
 
-      - name: Show archive
-        shell: pwsh
-        
+      - name: Upload Windows package
+        uses: actions/upload-artifact@v4
+        with:
+          name: lsp-plugins-1.2.35-Windows-x86_64
+          path: lsp-plugins-1.2.35-Windows-x86_64.zip
+          if-no-files-found: error
+          retention-days: 30
+```
